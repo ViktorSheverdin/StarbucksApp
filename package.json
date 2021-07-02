@@ -10,7 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "crypto": "^1.0.1",
+    "dom-parser": "^0.1.6",
     "dotenv": "^5.0.1",
+    "ejs": "^3.1.6",
     "email-templates": "^3.6.0",
     "express": "^4.16.3",
     "fs": "0.0.1-security",

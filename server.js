@@ -9,6 +9,9 @@ const crypto = require('crypto');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
 const email = require('./send_email.js');
+const { FIRST_HALF, SECOND_HALF } = require('./email_template/index');
+var ejs = require('ejs');
+var DOMParser = require('dom-parser');
 // const EmailTemp = require('email-templates');
 // const email_temp = new EmailTemp();
 
@@ -542,10 +545,11 @@ app.post('/storeuserdata', (request, response) => {
  */
 app.post('/send_via_mail', (request, response) => {
   LoadEmail(logged_in.username).then((email_res) => {
-    console.log('Res from database', email_res[0].email);
     var user_email = email_res[0].email;
-    var new_text = 'This is new test of email. Date is 22-May-2018.';
-    send_mail(user_email, new_text);
+    var locations_to_send = saved_loc.map(
+      (location) => `<ul><li>${location.location_id}</li></ul>`
+    );
+    send_mail(user_email, locations_to_send.join());
   });
 });
 

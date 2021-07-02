@@ -3,37 +3,34 @@ var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'starbucks.team.2018@gmail.com',
-    pass: 'starbucks2018'
-  }
+    user: 'starbucksApp.team2021@gmail.com',
+    pass: 'starbucks2021',
+  },
 });
 
 var mailOptions = {
-  from: 'youremail@gmail.com',
-  to: 'starbucks.team.2018@gmail.com',
+  from: 'starbucksApp.team2021@gmail.com',
+  to: 'starbucksApp.team2021@gmail.com',
   subject: 'Test Sb',
-  text: 'Success!'
+  text: 'Success!',
 };
 
-
 /**
-*Sends the emial based on optionss
-*@param {string} options - the information of the sender and reciever
-*/
+ *Sends the emial based on optionss
+ *@param {string} options - the information of the sender and reciever
+ */
 var send_email = (options) => {
-  transporter.sendMail(options, function(error, info){
-  if (error) {
+  transporter.sendMail(options, function (error, info) {
+    if (error) {
       console.log(error);
-    } 
-  else {
+    } else {
       console.log('Email sent: ' + info.response);
     }
   });
-}
-
-module.exports ={
-  transporter,
-  mailOptions,
-  send_email
 };
 
+module.exports = {
+  transporter,
+  mailOptions,
+  send_email,
+};

@@ -1,6 +1,8 @@
 const request = require('request');
+require('dotenv').config();
 const fs = require('fs');
 var list_of_places = [];
+
 /**
  *This function is used to get Sbs near you based on the coordinates. THIS IS A TEST
  *It uses Google Place API. It creates a Promise and if the body.status=="OK", will return tuple of body and list of places
@@ -11,7 +13,8 @@ var get_sturbuckses = (lat, long) => {
   return new Promise((resolve, reject) => {
     request(
       {
-        url: `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${long}&radius=10000&type=coffee&keyword=starbucks&key=AIzaSyCwCj9Z9yjawmMRRqrciYx4nSlQfw5Rv-4`,
+        // url: `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${long}&radius=10000&type=coffee&keyword=starbucks&key=${process.env.api_google}`,
+        url: `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${long}&radius=10000&keyword=starbucks&key=${process.env.api_google}`,
         json: true,
       },
       (error, response, body) => {
@@ -47,7 +50,7 @@ var getAddress = (address) => {
           'https://maps.googleapis.com/maps/api/geocode/json' +
           '?address=' +
           encodeURIComponent(address) +
-          '&key=AIzaSyCwCj9Z9yjawmMRRqrciYx4nSlQfw5Rv-4',
+          `&key=${process.env.api_google}`,
         json: true,
       },
       (error, response, body) => {
