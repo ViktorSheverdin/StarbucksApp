@@ -42,7 +42,8 @@ var saved_loc;
 var con = mysql.createConnection({
   host: process.env.host,
   user: process.env.user,
-  password: process.env.password,
+  // password: process.env.password,
+  password: '',
   database: process.env.database,
   port: process.env.dbport,
   multipleStatements: true,
