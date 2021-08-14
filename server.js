@@ -51,18 +51,18 @@ var con = mysql.createConnection({
 
 // dbport=1433
 // console.log(con);
-con.connect(function (err) {
-  if (err) {
-    console.error('Database connection failed: ' + err.stack);
-    return;
-  }
+// con.connect(function (err) {
+//   if (err) {
+//     console.error('Database connection failed: ' + err.stack);
+//     return;
+//   }
 
-  console.log('Connected to database.');
-});
+//   console.log('Connected to database.');
+// });
 
-con.on('error', function (err) {
-  console.log('mysql error', err);
-});
+// con.on('error', function (err) {
+//   console.log('mysql error', err);
+// });
 
 /**
  * Takes user's favorites list and Emails it to user
@@ -90,6 +90,7 @@ var send_mail = (send_to, email_text) => {
  */
 var LoadAccfile = () => {
   console.log('Getting user from DB');
+
   return new Promise((resolve) => {
     con.query('SELECT * FROM users', function (err, res, fields) {
       console.log('Load user from DB: ', res);
@@ -103,27 +104,38 @@ var LoadAccfile = () => {
  * @param {string} user - takes the logged in username to select where username is arg user to get list of favorite locations
  */
 var LoadEmail = (user) => {
-  return new Promise((resolve) => {
-    con.query(
-      "SELECT email FROM users WHERE username = '" + user + "'",
-      function (err, res, fields) {
-        resolve((user_email = JSON.parse(JSON.stringify(res))));
-      }
-    );
-  });
+  return {
+    username: 'viktor',
+    pass: '07a5054494bfa0917bb2eef3561d9c03',
+    salt: 'yWGvs98G0Bsh9JiS',
+    email: 'viktor.sheverdin@gmail.com',
+  };
+  // return new Promise((resolve) => {
+  //   con.query(
+  //     "SELECT email FROM users WHERE username = '" + user + "'",
+  //     function (err, res, fields) {
+  //       resolve((user_email = JSON.parse(JSON.stringify(res))));
+  //     }
+  //   );
+  // });
 };
 
 var loadUserdata = (user) => {
   console.log('Loading user: ', user);
-  return new Promise((resolve) => {
-    con.query(
-      `SELECT * from UserData WHERE username = '${user}' ORDER BY location_num`,
-      function (err, res, fields) {
-        console.log('Loading user: ', res);
-        resolve((saved_loc = JSON.parse(JSON.stringify(res))));
-      }
-    );
-  });
+  return {
+    location_id: '720 Granville St, Vancouver',
+    location_num: '0',
+    username: 'viktor',
+  };
+  // return new Promise((resolve) => {
+  //   con.query(
+  //     `SELECT * from UserData WHERE username = '${user}' ORDER BY location_num`,
+  //     function (err, res, fields) {
+  //       console.log('Loading user: ', res);
+  //       resolve((saved_loc = JSON.parse(JSON.stringify(res))));
+  //     }
+  //   );
+  // });
 };
 
 /**
@@ -132,23 +144,24 @@ var loadUserdata = (user) => {
  * @param {string} location - Is the location address the user is trying to save
  */
 var checkLocations = (user, location) => {
-  return new Promise(function (resolve, reject) {
-    con.query(
-      "SELECT * from UserData WHERE username ='" +
-        user +
-        "' AND location_id = '" +
-        location +
-        "'",
-      function (err, res, fields) {
-        var loc = JSON.stringify(res);
-        if (loc == '[]') {
-          resolve();
-        } else {
-          reject();
-        }
-      }
-    );
-  });
+  // return new Promise(function (resolve, reject) {
+  //   con.query(
+  //     "SELECT * from UserData WHERE username ='" +
+  //       user +
+  //       "' AND location_id = '" +
+  //       location +
+  //       "'",
+  //     function (err, res, fields) {
+  //       var loc = JSON.stringify(res);
+  //       if (loc == '[]') {
+  //         resolve();
+  //       } else {
+  //         reject();
+  //       }
+  //     }
+  //   );
+  // });
+  return true;
 };
 
 /**
@@ -157,15 +170,16 @@ var checkLocations = (user, location) => {
  * @param {string} location - Is the location address the user is trying to save
  */
 var addLocations = (user, location) => {
-  con.query(
-    "INSERT INTO UserData (username, location_id, location_num) values ('" +
-      user +
-      "','" +
-      location +
-      "'," +
-      saved_loc.length +
-      ')'
-  );
+  // con.query(
+  //   "INSERT INTO UserData (username, location_id, location_num) values ('" +
+  //     user +
+  //     "','" +
+  //     location +
+  //     "'," +
+  //     saved_loc.length +
+  //     ')'
+  // );
+  return true;
 };
 
 /**
@@ -175,46 +189,45 @@ var addLocations = (user, location) => {
  */
 
 var Login = (request, response) => {
-  LoadAccfile().then((res) => {
-    LoginCheck(request, Accs).then((res) => {
-      loadUserdata(logged_in.username).then(
-        (res) => {
-          displaySaved = '';
-          for (var i = 0; i < saved_loc.length; i++) {
-            displaySaved += `<div id=s${i} class="favItems"><a href="#" onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
-          }
-          console.log('displaySaved ', displaySaved);
-          current_ip.request_coodrs().then((response1) => {
-            console.log(response1);
-            maps
-              .get_sturbuckses(response1.lat, response1.lon)
-              .then((response2) => {
-                console.log('error', response2);
-                displayText = ' ';
-                for (var i = 0; i < response2.list_of_places.length; i++) {
-                  displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
-                }
-                console.log('Rendering page index2.hbs');
-                response.render('index2.hbs', {
-                  savedSpots: displaySaved,
-                  testvar: displayText,
-                  coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`,
-                });
-                // response.render('index2.hbs', {
-                //     savedSpots: displaySaved,
-                //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
-                // })
-              });
-          });
-        },
-        (rej) => {
-          response.render('index.hbs', {
-            username: 3,
-          });
-        }
-      );
+  // var Login = () => {
+  // LoadAccfile().then((res) => {
+  //   LoginCheck(request, Accs).then((res) => {
+  //     loadUserdata(logged_in.username).then(
+  //       (res) => {
+  displaySaved = '';
+  // for (var i = 0; i < saved_loc.length; i++) {
+  //   displaySaved += `<div id=s${i} class="favItems"><a href="#" onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+  // }
+  console.log('displaySaved ', displaySaved);
+  current_ip.request_coodrs().then((response1) => {
+    console.log(response1);
+    maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
+      console.log('error', response2);
+      displayText = ' ';
+      for (var i = 0; i < response2.list_of_places.length; i++) {
+        displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
+      }
+      console.log('Rendering page index2.hbs');
+      response.render('index2.hbs', {
+        savedSpots: displaySaved,
+        testvar: displayText,
+        coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`,
+      });
+      // response.render('index2.hbs', {
+      //     savedSpots: displaySaved,
+      //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
+      // })
     });
   });
+  //       },
+  //       (rej) => {
+  //         response.render('index.hbs', {
+  //           username: 3,
+  //         });
+  //       }
+  //     );
+  //   });
+  // });
 };
 
 /**
@@ -273,20 +286,20 @@ var AddUsr = (request, response) => {
         pass: hash_password,
         email: request.body.UserEmail,
       };
-      con.query(
-        "INSERT INTO users (username, pass, salt, email) values ('" +
-          acc.user +
-          "','" +
-          acc.pass +
-          "','" +
-          salt +
-          "','" +
-          acc.email +
-          "')",
-        function (err, res, fields) {
-          console.log(request.body.UserEmail);
-        }
-      );
+      // con.query(
+      //   "INSERT INTO users (username, pass, salt, email) values ('" +
+      //     acc.user +
+      //     "','" +
+      //     acc.pass +
+      //     "','" +
+      //     salt +
+      //     "','" +
+      //     acc.email +
+      //     "')",
+      //   function (err, res, fields) {
+      //     console.log(request.body.UserEmail);
+      //   }
+      // );
 
       response.render('index.hbs', {
         username: 0,
@@ -383,9 +396,9 @@ var delFavourites = (nums) => {
       sql += `UPDATE UserData SET location_num = location_num - 1 WHERE username = '${logged_in.username}' and location_num > ${nums[i]};\n`;
     }
     console.log(sql);
-    con.query(sql, function (err, res, fields) {
-      resolve();
-    });
+    // con.query(sql, function (err, res, fields) {
+    //   resolve();
+    // });
   });
 };
 
@@ -435,6 +448,7 @@ app.get('/map', (request, response) => {
 });
 
 app.post('/login', (request, response) => {
+  // Login(request, response);
   Login(request, response);
 });
 
